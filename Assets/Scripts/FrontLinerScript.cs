@@ -5,6 +5,7 @@ public class FrontLinerScript : MonoBehaviour
 {
     public bool manualControl = false;
     public float acceleration = 10.0f;
+    public float angularAcceleration = 5.0f;
     public float maxSpeed = 5.0f;
     public float maxAngularVelocity = 1.0f;
     public float motorHeight = .1f;
@@ -33,11 +34,11 @@ public class FrontLinerScript : MonoBehaviour
                 }
                 else if (Input.GetKey(KeyCode.J))
                 {
-                    rb.AddTorque(-Vector3.up * rb.mass * acceleration);
+                    rb.AddTorque(-Vector3.up * rb.mass * angularAcceleration);
                 }
                 else if (Input.GetKey(KeyCode.L))
                 {
-                    rb.AddTorque(Vector3.up * rb.mass * acceleration);
+                    rb.AddTorque(Vector3.up * rb.mass * angularAcceleration);
                 }
             }
         }
