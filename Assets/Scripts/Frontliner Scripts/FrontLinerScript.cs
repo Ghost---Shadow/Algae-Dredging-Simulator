@@ -12,6 +12,7 @@ public class FrontLinerScript : MonoBehaviour
     public float motorHeight = .1f;
     public float navigationError = .1f;
     public float triggerRadius = .1f;
+    public float stopVelocity = 0.05f;
 
     public Text waypointText;
     public Text velocityText;
@@ -21,18 +22,13 @@ public class FrontLinerScript : MonoBehaviour
 
     private Rigidbody rb;
 
-    private Vector3[] _wps;
+    public Transform[] _wps;
     private int _c = 0;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.maxAngularVelocity = maxAngularVelocity;
-
-        _wps = new Vector3[3];
-        _wps[0] = new Vector3(8, 0, 8);
-        _wps[1] = new Vector3(7, 0, 8);
-        _wps[2] = new Vector3(7, 0, -8);
 
         currentWaypoint = getCurrentWaypoint();
     }
@@ -51,13 +47,13 @@ public class FrontLinerScript : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
-        velocityText.text = "" + rb.velocity.magnitude;
+        velocityText.text = "Velocity: " + rb.velocity.magnitude;
     }
 
     private Vector3 getCurrentWaypoint()
     {
-        Vector3 wp = _wps[_c++ % _wps.Length];
-        waypointText.text = "" + wp;
+        Vector3 wp = _wps[_c++ % _wps.Length].position;
+        waypointText.text = "Waypoint: " + wp;
         return wp;
     }
 
@@ -66,7 +62,10 @@ public class FrontLinerScript : MonoBehaviour
         Vector3 direction = currentWaypoint - transform.position;
         if (direction.magnitude < triggerRadius)
         {
-            currentWaypoint = getCurrentWaypoint();
+            if (rb.velocity.magnitude > stopVelocity)
+                killVelocity();
+            else
+                currentWaypoint = getCurrentWaypoint();
             return;
         }
 
@@ -79,7 +78,8 @@ public class FrontLinerScript : MonoBehaviour
         else
         {
             if (Mathf.Abs(Vector3.Dot(direction.normalized, transform.right)) < navigationError)
-                back();
+                if (direction.magnitude < 2.0f)
+                    back();
         }
     }
 
@@ -98,10 +98,16 @@ public class FrontLinerScript : MonoBehaviour
         }
     }
 
+    private void killVelocity()
+    {
+        // rb.velocity = Vector3.zero;
+        float component = Vector3.Dot(transform.forward, rb.velocity);
+        rb.AddForce(-component * transform.forward * rb.mass * acceleration);
+    }
+
     private void forward()
     {
         Vector3 direction = currentWaypoint - transform.position;
-        //float s = Mathf.Sin(Mathf.Acos(Vector3.Dot(direction.normalized,transform.right)));
         rb.AddForce(transform.forward * rb.mass * acceleration * direction.magnitude);
     }
 
@@ -123,7 +129,7 @@ public class FrontLinerScript : MonoBehaviour
     {
         Vector3 direction = currentWaypoint - transform.position;
         float dot = Vector3.Dot(direction.normalized, transform.right);
-        dotText.text = dot + ":" + direction.magnitude;
+        dotText.text = "Dot: " + dot + " Distance: " + direction.magnitude;
         rb.AddTorque(dot * Vector3.up * rb.mass * angularAcceleration);
     }
 }
