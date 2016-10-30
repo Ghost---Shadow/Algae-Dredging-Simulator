@@ -133,7 +133,8 @@ public class FrontLinerScript : MonoBehaviour
     private void forward()
     {
         Vector3 direction = currentWaypoint - transform.position;
-        rb.AddForce(transform.forward * rb.mass * acceleration * direction.magnitude);
+        float d = Mathf.Clamp(direction.magnitude,0,2.0f);
+        rb.AddForce(transform.forward * rb.mass * acceleration * d);
     }
 
     private void back()

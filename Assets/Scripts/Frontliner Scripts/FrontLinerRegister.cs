@@ -33,8 +33,7 @@ public class FrontLinerRegister : MonoBehaviour
         Vector3[] wps = new Vector3[2];
 
         wps[0] = findClosestUnexploredTile(bot.transform.position);
-        //Debug.Log(wps[0] + " " + bot.transform.position);
-        wps[1] = findLeastExploredDirection(bot.transform.position) * Mathf.Max(sizeX, sizeY);
+        wps[1] = findLeastExploredDirection(wps[0]) * Mathf.Max(sizeX, sizeY);
 
         bot.setWaypoints(wps);
     }
@@ -61,16 +60,63 @@ public class FrontLinerRegister : MonoBehaviour
         return closest;
     }
 
-    // TODO
     private Vector3 findLeastExploredDirection(Vector3 pos)
     {
-        //int[] xy = vectorToInt(pos);
-        int dir1 = Random.Range(0, 1);
-        int sign = Random.Range(0, 1) > 0 ? -1 : 1;
-        if (dir1 > 0)
-            return sign * Vector3.forward * pos.z;
-        else
-            return sign * Vector3.right * pos.x;
+        int FORWARD = 0, RIGHT = 1, BACK = 2, LEFT = 3;
+
+        Vector3[] dirs = new Vector3[4];
+        dirs[FORWARD] = Vector3.forward * Mathf.Abs(pos.z);
+        dirs[RIGHT] = Vector3.right * Mathf.Abs(pos.x);
+        dirs[BACK] = -Vector3.forward * Mathf.Abs(pos.z); 
+        dirs[LEFT] = -Vector3.right * Mathf.Abs(pos.x); 
+
+        int dirIndex = RIGHT;        
+        int c = 0;
+
+        int[] xy = vectorToInt(pos);
+
+        // Forward
+        for(int i = xy[0] + 1; i < sizeX; i++)
+            if(map[i,xy[1]] == UNEXPLORED || map[i,xy[1]] == DIRTY)
+                c++;   
+
+        int max = c;
+        //Debug.Log("Right: "+c);
+        // Back
+        c = 0;
+        for(int i = 0; i < xy[0]; i++)
+            if(map[i,xy[1]] == UNEXPLORED || map[i,xy[1]] == DIRTY)
+                c++;
+        
+        if(c > max){
+            max = c;
+            dirIndex = LEFT;
+        }
+        //Debug.Log("Left: "+c);
+        // Left
+        c = 0;
+        for(int i = 0; i < xy[1]; i++)
+            if(map[xy[0],i] == UNEXPLORED || map[i,xy[1]] == DIRTY)
+                c++;
+        
+        if(c > max){
+            max = c;
+            dirIndex = BACK;
+        }
+        //Debug.Log("Back: "+c);
+        // Forward
+        c = 0;
+        for(int i = xy[1] + 1; i < sizeY; i++)
+            if(map[xy[0],i] == UNEXPLORED || map[i,xy[1]] == DIRTY)
+                c++; 
+
+        if(c > max){
+            max = c;
+            dirIndex = FORWARD;
+        }
+        //Debug.Log("Forward: "+c);
+        //Debug.Log(dirIndex);
+        return dirs[dirIndex];
     }
 
     public int[] vectorToInt(Vector3 pos)
