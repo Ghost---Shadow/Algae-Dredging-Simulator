@@ -22,13 +22,16 @@ public class FrontLinerScript : MonoBehaviour
 
     private Rigidbody rb;
 
-    public Transform[] _wps;
-    private int _c = 0;
+    private Vector3[] waypoints;
+    private int c = 0;
+
+    private FrontLinerRegister registry;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.maxAngularVelocity = maxAngularVelocity;
+        registry = transform.parent.GetComponent<FrontLinerRegister>();
 
         currentWaypoint = getCurrentWaypoint();
     }
@@ -50,9 +53,26 @@ public class FrontLinerScript : MonoBehaviour
         velocityText.text = "Velocity: " + rb.velocity.magnitude;
     }
 
+    public void setWaypoints(Vector3[] wps)
+    {
+        waypoints = wps;
+        c = 0;
+    }
+
     private Vector3 getCurrentWaypoint()
     {
-        Vector3 wp = _wps[_c++ % _wps.Length].position;
+        Vector3 wp = transform.position;
+        if (waypoints != null)
+        {
+            if (c < waypoints.Length)
+                wp = waypoints[c++];
+            else
+                registry.requestWaypoints(this);
+        }
+        else
+        {
+            registry.requestWaypoints(this);
+        }
         waypointText.text = "Waypoint: " + wp;
         return wp;
     }
