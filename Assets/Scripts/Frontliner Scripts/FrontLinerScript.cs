@@ -33,23 +33,19 @@ public class FrontLinerScript : MonoBehaviour
         rb.maxAngularVelocity = maxAngularVelocity;
         registry = transform.parent.GetComponent<FrontLinerRegister>();
 
-        currentWaypoint = getCurrentWaypoint();
+        //currentWaypoint = getCurrentWaypoint();
     }
 
     void FixedUpdate()
-    {
+    {        
         if (manualControl)
-        {
             manualControlLogic();
-        }
         else
-        {
             navigateToWaypoint();
-        }
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
-        {
+
+        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)        
             rb.velocity = rb.velocity.normalized * maxSpeed;
-        }
+        
         velocityText.text = "Velocity: " + rb.velocity.magnitude;
     }
 
@@ -57,6 +53,13 @@ public class FrontLinerScript : MonoBehaviour
     {
         waypoints = wps;
         c = 0;
+        currentWaypoint = wps[c++];
+        waypointText.text = "Waypoint: " + currentWaypoint;
+        //Debug.Log("Got new waypoints");
+    }
+
+    public void requestNewWaypoints(){
+        registry.requestWaypoints(this);
     }
 
     private Vector3 getCurrentWaypoint()
@@ -79,6 +82,8 @@ public class FrontLinerScript : MonoBehaviour
 
     private void navigateToWaypoint()
     {
+        if(waypoints == null)
+            currentWaypoint = getCurrentWaypoint();
         Vector3 direction = currentWaypoint - transform.position;
         if (direction.magnitude < triggerRadius)
         {
