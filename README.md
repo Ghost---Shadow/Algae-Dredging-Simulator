@@ -2,7 +2,7 @@
 
 A simulation as a proof of concept for automated [skimming of algae](https://www.youtube.com/watch?v=bblz4FgvJSw) in mostly still water. 
 The experiment seeks to automate the process of dredging algae from water bodies like ponds using multiple bots controlled by a central coordinator.
-Algae in stil water causes [several problems](https://www.epa.gov/nutrientpollution/harmful-algal-blooms) and is generally unpleasant too look at.
+Algae in still water causes [several problems](https://www.epa.gov/nutrientpollution/harmful-algal-blooms) and is generally unpleasant too look at.
 
 ## Requirements
 
